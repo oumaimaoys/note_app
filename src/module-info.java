@@ -6,4 +6,5 @@
  *
  */
 module NoteApp {
+	requires java.desktop;
 }

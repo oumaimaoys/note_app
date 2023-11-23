@@ -4,28 +4,31 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class NoteTakingApp extends JFrame{
-	private ArrayList<Note> noteList;
+	private DefaultListModel<Note> noteListModel;
     private JList<Note> noteJList;
     private JTextField searchField;
     private JButton newNote;
+    private String directoryPath;
     
     
     public NoteTakingApp() {
     	super("Note Taking App");
     	
-    	noteList = new ArrayList<Note>();
+    	directoryPath = new String();
     	searchField = new JTextField("Search in notes");
     	newNote = new JButton();
+    	noteListModel = new DefaultListModel<>();
+        noteJList = new JList<>(noteListModel);
+        noteJList.setCellRenderer(new NoteListCellRenderer());
     	
     	// layout of the app 
     	JPanel headerPanel = new JPanel();
     	JPanel bodyPanel = new JPanel(new BorderLayout());
     	JPanel titlePanel = new JPanel(new FlowLayout());
-    	JPanel notesPanel = new JPanel(new GridLayout(3,3));
+    	JPanel notesPanel = new JPanel();
+    	notesPanel.setLayout(new BoxLayout(notesPanel, BoxLayout.Y_AXIS));
     	
     	// header styling
     	headerPanel.setBackground(new Color(158, 209, 204));
@@ -50,6 +53,9 @@ public class NoteTakingApp extends JFrame{
         titlePanel.add(title);
         titlePanel.add(newNote);
         
+        notesPanel.add(noteJList);
+        
+        
         bodyPanel.add(titlePanel, BorderLayout.NORTH);
         bodyPanel.add(notesPanel, BorderLayout.CENTER);
         
@@ -62,6 +68,22 @@ public class NoteTakingApp extends JFrame{
     	add(headerPanel, BorderLayout.NORTH);
     	add(bodyPanel, BorderLayout.CENTER);
     	
+    	JScrollPane scrollPane = new JScrollPane(notesPanel);
+
+         // Set the vertical scrollbar to always show
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        bodyPanel.add(scrollPane);
+    	
+    	// actions
+    	newNote.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addNote();	
+			}
+    		
+    	});
+    	
     	setSize(800, 600);
     	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	setLocationRelativeTo(null);
@@ -69,14 +91,54 @@ public class NoteTakingApp extends JFrame{
     }
     
     private void addNote() {
+    	// configure frame
+    	JFrame noteFrame = new JFrame("new note");
+    	noteFrame.setSize(400, 300);
+        noteFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Close only the nested frame on close
+        noteFrame.setLocationRelativeTo(this);
+        
+        // add elements
+        JTextField title = new JTextField();
+        JTextArea body = new JTextArea();
+        JButton saveButton = new JButton("save");
+        
+        title.setPreferredSize(new Dimension(180, 20));
+        body.setPreferredSize(new Dimension(180, 150));
+        
+        noteFrame.setLayout(new BorderLayout());
+        noteFrame.add(title, BorderLayout.NORTH);
+        noteFrame.add(body, BorderLayout.CENTER);
+        noteFrame.add(saveButton, BorderLayout.SOUTH);
+        
+        // Make the nested frame visible
+        noteFrame.setVisible(true);
+        
+        // actions
+        saveButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String titleText = title.getText();
+				String bodyText = body.getText();
+				if(titleText.isEmpty() || bodyText.isEmpty()) {
+					JOptionPane.showMessageDialog(null, "please fill in the fields");
+				}
+				else {
+					Note note = new Note(titleText, bodyText);
+					noteListModel.addElement(note);
+					noteFrame.dispose();
+				}
+	
+			}
+        	
+        });
+    }
+    
+    private void saveNote() { // save it into file
     	
     }
     
-    private void saveNote() {
-    	
-    }
-    
-    private void loadNote() {
+    private void loadNote() { // load it from file after closing and opening the app
     	
     }
     
@@ -88,11 +150,29 @@ public class NoteTakingApp extends JFrame{
     	
     }
     
+    private void getDirectoryPath() {
+    	JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+        // Show the file chooser dialog
+        int result = fileChooser.showDialog(this, "Choose");
+
+        // Check if the user selected a folder
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFolder = fileChooser.getSelectedFile();
+            directoryPath = selectedFolder.getAbsolutePath();
+        }
+
+    }
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new NoteTakingApp();
+                NoteTakingApp myApp = new NoteTakingApp();
+                if (myApp.directoryPath.length() == 0) {
+                	myApp.getDirectoryPath();
+                }
             }
         });
     }

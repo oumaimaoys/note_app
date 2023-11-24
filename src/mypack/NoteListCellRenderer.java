@@ -22,18 +22,13 @@ class NoteListCellRenderer implements ListCellRenderer<Note> {
 		JPanel notePanel = new JPanel(new BorderLayout());
 		JLabel noteTitle = new JLabel(note.getTitle());
 		JTextArea noteBody = new JTextArea(note.getBody());
+		Styler styler = new Styler();
 		
 		notePanel.add(noteTitle, BorderLayout.NORTH);
+		notePanel.add(noteBody, BorderLayout.CENTER);
 		
-		JScrollPane noteScrollPane = new JScrollPane(noteBody);
-		//noteScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		notePanel.add(noteScrollPane, BorderLayout.CENTER);
-		
-		notePanel.setPreferredSize(new Dimension(300,200));
-		noteTitle.setPreferredSize(new Dimension(300,20));
-		noteBody.setPreferredSize(new Dimension(300,170));
-		
-		notePanel.setBackground(Color.CYAN);
+		// sstyling
+		styler.styleNotePanel(notePanel, noteTitle, noteBody);
 		
     	
 		return notePanel;

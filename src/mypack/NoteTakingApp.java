@@ -11,70 +11,61 @@ public class NoteTakingApp extends JFrame{
     private JTextField searchField;
     private JButton newNote;
     private String directoryPath;
+    private Styler styler;
     
     
     public NoteTakingApp() {
     	super("Note Taking App");
     	
+    	styler = new Styler();
     	directoryPath = new String();
     	searchField = new JTextField("Search in notes");
     	newNote = new JButton();
     	noteListModel = new DefaultListModel<>();
         noteJList = new JList<>(noteListModel);
-        noteJList.setCellRenderer(new NoteListCellRenderer());
+    	noteJList.setCellRenderer(new NoteListCellRenderer());
     	
     	// layout of the app 
     	JPanel headerPanel = new JPanel();
     	JPanel bodyPanel = new JPanel(new BorderLayout());
     	JPanel titlePanel = new JPanel(new FlowLayout());
     	JPanel notesPanel = new JPanel();
-    	notesPanel.setLayout(new BoxLayout(notesPanel, BoxLayout.Y_AXIS));
-    	
-    	// header styling
-    	headerPanel.setBackground(new Color(158, 209, 204));
-        headerPanel.setPreferredSize(new Dimension(headerPanel.getPreferredSize().height, 50));
-        
-        //header elements
-        searchField.setPreferredSize(new Dimension(200,30));
-        searchField.setFont(new Font("Verdana", Font.PLAIN, 14));
-        searchField.setForeground(Color.BLUE);
-        searchField.setBackground(Color.WHITE);
-        searchField.setBorder(BorderFactory.createLineBorder(Color.lightGray, 1));
+    
+        // header elements
         headerPanel.add(searchField);
         
         // body elements
         JLabel title = new JLabel("Your Notes");
         newNote = new JButton("+ Note");
         
-        title.setFont(new Font("Verdana", Font.BOLD, 40));
-        newNote.setBackground(Color.darkGray);
-        newNote.setForeground(Color.white);
-        
         titlePanel.add(title);
         titlePanel.add(newNote);
-        
+       
+        notesPanel.setLayout(new BoxLayout(notesPanel, BoxLayout.Y_AXIS));
         notesPanel.add(noteJList);
-        
-        
+
         bodyPanel.add(titlePanel, BorderLayout.NORTH);
         bodyPanel.add(notesPanel, BorderLayout.CENTER);
         
-        // body styling
-    	bodyPanel.setBackground(new Color(237, 246, 249));
+        JScrollPane scrollPane = new JScrollPane(notesPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        
+    	bodyPanel.add(scrollPane);
     	
-    	// layout manager
+    	// layout manager 
     	setLayout(new BorderLayout());
     	
     	add(headerPanel, BorderLayout.NORTH);
     	add(bodyPanel, BorderLayout.CENTER);
-    	
-    	JScrollPane scrollPane = new JScrollPane(notesPanel);
-
-         // Set the vertical scrollbar to always show
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-        bodyPanel.add(scrollPane);
-    	
+    
+        // styling
+    	styler.styleHeader(headerPanel);
+        styler.styleSearch(searchField);
+        styler.styleButton(newNote);
+        styler.styleHeading1(title);
+    	bodyPanel.setBackground(new Color(237, 246, 249));
+    	notesPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        
     	// actions
     	newNote.addActionListener(new ActionListener() {
 			@Override
@@ -84,7 +75,7 @@ public class NoteTakingApp extends JFrame{
     		
     	});
     	
-    	setSize(800, 600);
+    	setSize(1000, 600);
     	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	setLocationRelativeTo(null);
     	setVisible(true);
